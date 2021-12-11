@@ -21,14 +21,16 @@ public class AuthorDaoImpl extends CrudSql implements AuthorDao {
     private static final String update;
     private static final String findByName;
     private static final String save;
+    private static final String currentId;
 
     static {
         update = "update author set first_name = ?, last_name = ?, description = ? where id = ?";
         findByName = "select * from author where name = ?";
-        save = "insert into author (first_name, last_name, description) values(?,?,?,?)";
+        save = "insert into author (first_name, last_name, description) values(?,?,?)";
+        currentId = "select max(id) from author";
     }
 
-    protected AuthorDaoImpl() {
+    public AuthorDaoImpl() {
         super(tableName);
     }
 
@@ -111,9 +113,9 @@ public class AuthorDaoImpl extends CrudSql implements AuthorDao {
 
     @Override
     public boolean update(Author o) {
-        logger.info("Запрос на обновление к author по id - {}", this.update);
+        logger.info("Запрос на обновление к author по id - {}", update);
 
-        try(PreparedStatement statement = super.connection.prepareStatement(this.update)) {
+        try(PreparedStatement statement = super.connection.prepareStatement(update)) {
             statement.setString(1, o.getFirstName());
             statement.setString(2, o.getLastName());
             statement.setString(3, o.getDescription());
@@ -121,27 +123,33 @@ public class AuthorDaoImpl extends CrudSql implements AuthorDao {
             statement.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            logger.warn("Ошибка в запросе update - {}", this.update);
+            logger.warn("Ошибка в запросе update - {}", update);
             logger.warn(ex.getMessage());
             return false;
         }
     }
 
     @Override
-    public boolean save(Author o) {
-        logger.info("Запрос на сохранение к author по id - {}", this.save);
-
-        try(PreparedStatement statement = super.connection.prepareStatement(this.save)) {
+    public Long save(Author o) {
+        logger.info("Запрос на сохранение к author по id - {}", save);
+        ResultSet resultSet = null;
+        try(PreparedStatement statement = super.connection.prepareStatement(save);
+        Statement statementForId = super.connection.createStatement()) {
             statement.setString(1, o.getFirstName());
             statement.setString(2, o.getLastName());
             statement.setString(3, o.getDescription());
 
             statement.executeUpdate();
-            return true;
+            resultSet = statementForId.executeQuery(currentId);
+            Long resId = null;
+            if(resultSet.next()) {
+                resId = resultSet.getLong(1);
+            }
+            return resId;
         } catch (SQLException ex) {
-            logger.warn("Ошибка в запросе save - {}", this.save);
+            logger.warn("Ошибка в запросе save - {}", save);
             logger.warn(ex.getMessage());
-            return false;
+            return null;
         }
     }
 }

@@ -6,7 +6,7 @@ import java.util.Optional;
 public interface DefaultService<T> {
     Optional<T> findById(Long id);
     Optional<List<T>> findAll();
-    Optional<T> findByName();
+    Optional<List<T>> findByName(String name);
     boolean update(T o);
     boolean deleteByKey(Long id);
     boolean save(T o);

@@ -22,11 +22,13 @@ public class RoleDaoImpl extends CrudSql implements RoleDao {
     private static final String update;
     private static final String findByName;
     private static final String save;
+    private static final String findRoleByUserId;
 
     static {
         update = "update role set name = ?, description = ? where id = ?";
-        findByName = "select * from where where name = ?";
+        findByName = "select * from role where name = ?";
         save = "insert into role (name, description) values(?,?)";
+        findRoleByUserId = "select * from role join user_role on user_role.user_id = ? and role.id = user_role.role_id";
     }
 
     public RoleDaoImpl() {
@@ -118,16 +120,16 @@ public class RoleDaoImpl extends CrudSql implements RoleDao {
 
     @Override
     public boolean update(Role o) {
-        logger.info("Запрос на обновление к role по id - {}", this.update);
+        logger.info("Запрос на обновление к role по id - {}", update);
 
-        try(PreparedStatement statement = super.connection.prepareStatement(this.update)) {
+        try(PreparedStatement statement = super.connection.prepareStatement(update)) {
             statement.setString(1, o.getName().name());
             statement.setString(2, o.getDescription());
             statement.setLong(3, o.getId());
             statement.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            logger.warn("Ошибка в запросе update - {}", this.update);
+            logger.warn("Ошибка в запросе update - {}", update);
             logger.warn(ex.getMessage());
             return false;
         }
@@ -135,18 +137,74 @@ public class RoleDaoImpl extends CrudSql implements RoleDao {
 
     @Override
     public boolean save(Role o) {
-        logger.info("Запрос на сохранение к role по id - {}", this.save);
+        logger.info("Запрос на сохранение к role по id - {}", save);
 
-        try(PreparedStatement statement = super.connection.prepareStatement(this.save)) {
+        try(PreparedStatement statement = super.connection.prepareStatement(save)) {
             statement.setString(1, o.getName().name());
             statement.setString(2, o.getDescription());
 
             statement.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            logger.warn("Ошибка в запросе save - {}", this.save);
+            logger.warn("Ошибка в запросе save - {}", save);
             logger.warn(ex.getMessage());
             return false;
         }
+    }
+
+    @Override
+    public Role getRoleByUserId(Long id) {
+        logger.info("Запрос к role по user_id - {}", findRoleByUserId);
+        ResultSet resultSet = null;
+        try(PreparedStatement statement = super.connection.prepareStatement(findRoleByUserId)) {
+            statement.setLong(1,id);
+            resultSet = statement.executeQuery();
+
+            if(resultSet.next()) {
+                return this.buildRole(resultSet);
+            } else {
+                logger.info("Ошибка в запросе. Возможно role с id={} не существует.", id);
+            }
+        } catch (SQLException ex) {
+            logger.warn("Ошибка в запросе findByUserId - {}", findRoleByUserId);
+            logger.warn(ex.getMessage());
+        } finally {
+            if(resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Role findByName(String name) {
+        logger.info("Запрос к role по name - {}", findByName);
+        ResultSet resultSet = null;
+        try(PreparedStatement statement = super.connection.prepareStatement(findByName)) {
+            statement.setString(1,name);
+            resultSet = statement.executeQuery();
+
+            if(resultSet.next()) {
+                return this.buildRole(resultSet);
+            } else {
+                logger.info("Ошибка в запросе. Возможно role с name={} не существует.", name);
+            }
+        } catch (SQLException ex) {
+            logger.warn("Ошибка в запросе findById - {}", findByName);
+            logger.warn(ex.getMessage());
+        } finally {
+            if(resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }

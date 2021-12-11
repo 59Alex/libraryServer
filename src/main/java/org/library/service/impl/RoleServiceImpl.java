@@ -18,7 +18,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Optional<Role> findByName() {
+    public Optional<List<Role>> findByName(String name) {
         return Optional.empty();
     }
 
