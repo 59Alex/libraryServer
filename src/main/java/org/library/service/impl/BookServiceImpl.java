@@ -96,7 +96,15 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Optional<List<Book>> getByUserId(Long id) {
-        return bookDao.getByUserId(id);
+        List<Book> books = new ArrayList<>();
+        Optional<List<Book>> optional = bookDao.getByUserId(id);
+        if(optional.isPresent()) {
+            for(Book book : optional.get()) {
+                books.add(uploadAuthor(book));
+            }
+            return Optional.of(books);
+        }
+        return optional;
     }
 
     @Override

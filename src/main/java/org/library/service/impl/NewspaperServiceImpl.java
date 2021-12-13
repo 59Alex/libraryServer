@@ -1,6 +1,7 @@
 package org.library.service.impl;
 
 import org.library.model.Author;
+import org.library.model.Book;
 import org.library.model.Journal;
 import org.library.model.Newspaper;
 import org.library.repository.abstr.AuthorDao;
@@ -98,7 +99,15 @@ public class NewspaperServiceImpl implements NewspaperService {
 
     @Override
     public Optional<List<Newspaper>> getByUserId(Long id) {
-        return newspaperDao.getByUserId(id);
+        List<Newspaper> newspapers = new ArrayList<>();
+        Optional<List<Newspaper>> optional = newspaperDao.getByUserId(id);
+        if(optional.isPresent()) {
+            for(Newspaper newspaper : optional.get()) {
+                newspapers.add(uploadAuthor(newspaper));
+            }
+            return Optional.of(newspapers);
+        }
+        return optional;
     }
 
     @Override

@@ -36,6 +36,7 @@ public class InitProperties {
     }
 
     private void initializer() {
+
         properties = new HashMap<>();
         List<File> files = this.getFiles();
         logger.info("Чтение файлов из CLASSPATH");
@@ -46,12 +47,12 @@ public class InitProperties {
                 String line;
                 while((line = bufferedReader.readLine()) != null) {
                     String[] keyValueArray = line.split("=",2);
-                    if(keyValueArray.length >= 2) {
+                    if(keyValueArray.length == 2) {
                         properties.put(keyValueArray[0], keyValueArray[1]);
                     }
                 }
             } catch (IOException ex) {
-                logger.warn("Ошибка при чтении файла %s", file.getName());
+                logger.warn("Ошибка при чтении файла {}", file.getName());
             }
         }
     }

@@ -97,7 +97,15 @@ public class JournalServiceImpl implements JournalService {
 
     @Override
     public Optional<List<Journal>> getByUserId(Long id) {
-        return journalDao.getByUserId(id);
+        List<Journal> journals = new ArrayList<>();
+        Optional<List<Journal>> optional = journalDao.getByUserId(id);
+        if(optional.isPresent()) {
+            for(Journal journal : optional.get()) {
+                journals.add(uploadAuthor(journal));
+            }
+            return Optional.of(journals);
+        }
+        return optional;
     }
 
     @Override

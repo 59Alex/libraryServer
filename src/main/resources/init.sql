@@ -152,11 +152,11 @@ VALUES ('USER', 'Has admin');
 
 -- bind user & role
 INSERT INTO library.user_role (user_id, role_id)
-VALUES (1, 1);
+VALUES (1, 2);
 INSERT INTO library.user_role (user_id, role_id)
-VALUES (2, 1);
+VALUES (2, 2);
 INSERT INTO library.user_role (user_id, role_id)
-VALUES (3, 2);
+VALUES (3, 1);
 
 -- add author
 INSERT INTO library.author (first_name, last_name, description)
